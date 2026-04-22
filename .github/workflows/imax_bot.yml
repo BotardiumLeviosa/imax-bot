@@ -2,7 +2,7 @@ name: IMAX Bot
 
 on:
   schedule:
-    - cron: '0 12,14,16,18,20,22,0 * * *'
+    - cron: '*/10 * * * 1-4'
   workflow_dispatch:
 
 jobs:
