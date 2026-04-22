@@ -1,0 +1,39 @@
+name: IMAX Bot
+
+on:
+  schedule:
+    - cron: '0 12,14,16,18,20,22,0 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-imax:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Restaurar estado previo
+        uses: actions/cache@v4
+        with:
+          path: imax_state.json
+          key: imax-state-${{ github.run_id }}
+          restore-keys: |
+            imax-state-
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Correr scraper
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python scraper.py
+
+      - name: Guardar estado actualizado
+        uses: actions/cache/save@v4
+        with:
+          path: imax_state.json
+          key: imax-state-${{ github.run_id }}
