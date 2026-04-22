@@ -55,29 +55,17 @@ def check_imax():
     prev_movies = previous.get("movies", [])
 
     new = [m for m in current if m not in prev_movies]
-    removed = [m for m in prev_movies if m not in current]
 
     if new:
-        lines = ["🎬 <b>Nueva(s) función(es) IMAX en Showcase:</b>"]
+        lines = ["🎬 <b>IMAX Showcase — se agregaron funciones para:</b>"]
         lines += [f"• {m}" for m in new]
-        lines.append(f'\n🔗 <a href="{SHOWCASE_URL}">Ver cartelera</a>')
-        send_telegram("\n".join(lines))
-
-    if removed:
-        lines = ["📭 <b>Ya no están en cartelera IMAX:</b>"]
-        lines += [f"• {m}" for m in removed]
-        send_telegram("\n".join(lines))
-
-    if not prev_movies and current:
-        lines = ["🎬 <b>Cartelera IMAX actual en Showcase:</b>"]
-        lines += [f"• {m}" for m in current]
         lines.append(f'\n🔗 <a href="{SHOWCASE_URL}">Ver cartelera</a>')
         send_telegram("\n".join(lines))
 
     with open(state_file, "w") as f:
         json.dump({"movies": current}, f)
 
-    print(f"[IMAX] Encontradas: {current} | Nuevas: {new} | Removidas: {removed}")
+    print(f"[IMAX] Encontradas: {current} | Nuevas: {new}")
 
 # ─── ATLAS ───────────────────────────────────────────────────────────────────
 
@@ -89,13 +77,12 @@ def get_atlas_movies():
     movies = []
     for link in soup.find_all("a", href=True):
         if "codPelicula=" in link["href"]:
+            # Buscar el tag <strong> que tiene solo el título
             strong = link.find("strong")
             if strong:
                 title = strong.get_text(strip=True)
-            else:
-                title = link.get_text(strip=True).split("\n")[0].strip()
-            if title and len(title) > 2 and title not in movies:
-                movies.append(title)
+                if title and len(title) > 2 and title not in movies:
+                    movies.append(title)
 
     return sorted(movies)
 
@@ -106,29 +93,17 @@ def check_atlas():
     prev_movies = previous.get("movies", [])
 
     new = [m for m in current if m not in prev_movies]
-    removed = [m for m in prev_movies if m not in current]
 
     if new:
-        lines = ["🎬 <b>Nueva(s) película(s) en Atlas Cines:</b>"]
+        lines = ["🎬 <b>Atlas Cines — se agregaron funciones para:</b>"]
         lines += [f"• {m}" for m in new]
-        lines.append(f'\n🔗 <a href="{ATLAS_URL}">Ver cartelera</a>')
-        send_telegram("\n".join(lines))
-
-    if removed:
-        lines = ["📭 <b>Ya no están en cartelera Atlas:</b>"]
-        lines += [f"• {m}" for m in removed]
-        send_telegram("\n".join(lines))
-
-    if not prev_movies and current:
-        lines = ["🎬 <b>Cartelera actual Atlas Cines (Flores, Caballito, Patio Bullrich):</b>"]
-        lines += [f"• {m}" for m in current]
         lines.append(f'\n🔗 <a href="{ATLAS_URL}">Ver cartelera</a>')
         send_telegram("\n".join(lines))
 
     with open(state_file, "w") as f:
         json.dump({"movies": current}, f)
 
-    print(f"[Atlas] Encontradas: {current} | Nuevas: {new} | Removidas: {removed}")
+    print(f"[Atlas] Encontradas: {current} | Nuevas: {new}")
 
 # ─── MAIN ────────────────────────────────────────────────────────────────────
 
